@@ -28,16 +28,6 @@ public class UserController {
     @Autowired
     private UserServiceImpl userService;
 
-    @PostMapping("/login")
-    public boolean login(@RequestBody UserDto userDto){
-        String username = userDto.getUsername();
-        String password = userDto.getPassword();
-        if (StrUtil.isBlank(username) || StrUtil.isBlank(password)){
-            return false;
-        }
-        return userService.login(userDto);
-    }
-
     @PostMapping
     public boolean save(@RequestBody User user) {
         return userService.saveOrUpdate(user);

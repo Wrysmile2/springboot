@@ -7,14 +7,16 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Data;
 
+import java.sql.Timestamp;
+
 @Data
 @TableName(value = "userinfo")
 public class UserInfo {
     @TableId(type = IdType.AUTO)
     private Integer userId;
     private String username;
-    @JsonIgnore
     private String password;
-    @TableField(value = "dateandtime")
-    private String DateAndTime;
+    private String phone;
+    private String email;
+    private String address;
 }

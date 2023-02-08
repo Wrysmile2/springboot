@@ -6,9 +6,9 @@ import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yjw.springboot.entity.NewsArticles;
+import com.yjw.springboot.entity.NewsTypes;
 import com.yjw.springboot.entity.User;
-import com.yjw.springboot.service.Impl.NewsArticlesServiceImpl;
+import com.yjw.springboot.service.Impl.NewsTypesServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -21,20 +21,20 @@ import java.net.URLEncoder;
 import java.util.List;
 
 @RestController
-@RequestMapping("/news")
-public class NewsArticlesController {
+@RequestMapping("/newsType")
+public class NewsTypesController {
 
     @Autowired
-    private NewsArticlesServiceImpl newsArticlesService;
+    private NewsTypesServiceImpl newsTypesService;
 
     /**
-     * 读取新闻
+     * 增加或删除
+     * @param newsTypes
      * @return
      */
-    @GetMapping("/read")
-    public List<NewsArticles> findAll() {
-        List<NewsArticles> list = newsArticlesService.list();
-        return list;
+    @PostMapping
+    public boolean save(@RequestBody NewsTypes newsTypes) {
+        return newsTypesService.saveOrUpdate(newsTypes);
     }
 
     /**
@@ -43,20 +43,48 @@ public class NewsArticlesController {
      * @return
      */
     @DeleteMapping("/{id}")
-    public boolean deleteById(@PathVariable Integer id){
-        boolean result = newsArticlesService.removeById(id);
-        return result;
+    public boolean delete(@PathVariable Integer id) {
+        return newsTypesService.removeById(id);
     }
 
     /**
-     * 批量删除新闻
+     * 批量删除数据
      * @param ids
      * @return
      */
     @PostMapping("/delete/batch")
-    public boolean deleteBatch(@RequestParam List<Integer> ids){
-        boolean result = newsArticlesService.removeByIds(ids);
-        return result;
+    public boolean deleteBatch(@RequestBody List<Integer> ids) {
+        return newsTypesService.removeByIds(ids);
+    }
+
+    /**
+     * 遍历数据
+     * @return
+     */
+    @GetMapping("/read")
+    public List<NewsTypes> findAll() {
+        return newsTypesService.list();
+    }
+
+    //分页查询--基于MyBatis-plus的方法
+    /**
+     * 分页查询
+     * @param pageNum
+     * @param pageSize
+     * @param typeName
+     * @return
+     */
+    @GetMapping("/page")
+    public IPage<NewsTypes> findPage(@RequestParam Integer pageNum,
+                                @RequestParam Integer pageSize,
+                                @RequestParam(defaultValue = "") String typeName) {
+        IPage<NewsTypes> page = new Page<>(pageNum, pageSize);
+        QueryWrapper<NewsTypes> queryWrapper = new QueryWrapper<>();
+        if (!("".equals(typeName))) {
+            queryWrapper.like("typeName", typeName);
+        }
+        IPage<NewsTypes> newsTypesIPage = newsTypesService.page(page, queryWrapper);
+        return newsTypesIPage;
     }
 
     /**
@@ -66,7 +94,7 @@ public class NewsArticlesController {
      */
     @GetMapping("/export")
     public void export(HttpServletResponse response) throws IOException {
-        List<NewsArticles> list = newsArticlesService.list();
+        List<NewsTypes> list = newsTypesService.list();
         ExcelWriter writer = ExcelUtil.getWriter(true);
 
         writer.write(list, true);
@@ -92,24 +120,6 @@ public class NewsArticlesController {
         ExcelReader reader = ExcelUtil.getReader(inputStream);
         List<User> users = reader.readAll(User.class);
         System.out.println(users);
-    }
-
-    /**
-     * 分页查询--基于MyBatis-plus的方法
-     * @param pageNum
-     * @param pageSize
-     * @return
-     */
-    @GetMapping("/page")
-    public IPage<NewsArticles> findPage(@RequestParam Integer pageNum,
-                                        @RequestParam Integer pageSize){
-        IPage<NewsArticles> page = new Page<>(pageNum, pageSize);
-        QueryWrapper<NewsArticles> queryWrapper = new QueryWrapper<>();
-        /*if (typeId != null) {
-            queryWrapper.eq("typeId",typeId);
-        }*/
-        IPage<NewsArticles> newsArticlesIPage = newsArticlesService.page(page, queryWrapper);
-        return newsArticlesIPage;
     }
 
 }

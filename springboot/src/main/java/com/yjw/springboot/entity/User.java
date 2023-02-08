@@ -11,7 +11,6 @@ public class User {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String username;
-    @JsonIgnore
     private String password;
     private String nickname;
     private String email;
