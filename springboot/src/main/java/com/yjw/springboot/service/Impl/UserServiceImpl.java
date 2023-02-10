@@ -10,6 +10,7 @@ import com.yjw.springboot.entity.User;
 import com.yjw.springboot.exception.ServiceException;
 import com.yjw.springboot.mapper.UserMapper;
 import com.yjw.springboot.service.IUserService;
+import com.yjw.springboot.utils.TokenUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpRequest;
@@ -36,6 +37,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         if (one != null){
             BeanUtil.copyProperties(one,userDto,true);
+            // 设置token
+            String token = TokenUtils.getToken(one.getId().toString(), one.getPassword());
+            userDto.setToken(token);
             return userDto;
         }else {
             throw new ServiceException(Constants.CODE_600,"用户名或密码错误");

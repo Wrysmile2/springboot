@@ -1,19 +1,17 @@
 package com.yjw.springboot.controller;
 
-import cn.hutool.core.util.StrUtil;
 import cn.hutool.poi.excel.ExcelReader;
 import cn.hutool.poi.excel.ExcelUtil;
 import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.yjw.springboot.dto.UserDto;
+import com.yjw.springboot.common.Result;
 import com.yjw.springboot.entity.User;
 import com.yjw.springboot.service.Impl.UserServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,19 +26,41 @@ public class UserController {
     @Autowired
     private UserServiceImpl userService;
 
+    /**
+     * 新增或修改数据
+     * @param user
+     * @return
+     */
     @PostMapping
-    public boolean save(@RequestBody User user) {
-        return userService.saveOrUpdate(user);
+    public Result save(@RequestBody User user) {
+        return Result.success(userService.saveOrUpdate(user));
     }
 
+    /**
+     * 根据ID删除数据
+     * @param id
+     * @return
+     */
     @DeleteMapping("/{id}")
-    public boolean delete(@PathVariable Integer id) {
-        return userService.removeById(id);
+    public Result delete(@PathVariable Integer id) {
+        return Result.success(userService.removeById(id));
     }
 
+    /**
+     * 批量删除数据
+     * @param ids
+     * @return
+     */
     @PostMapping("/delete/batch")
-    public boolean deleteBatch(@RequestBody List<Integer> ids) {
-        return userService.removeByIds(ids);
+    public Result deleteBatch(@RequestBody List<Integer> ids) {
+        return Result.success(userService.removeByIds(ids));
+    }
+
+    @GetMapping("/username/{username}")
+    public Result findOne(@PathVariable String username){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username",username);
+        return Result.success(userService.getOne(queryWrapper));
     }
 
     /*@PostMapping("/update")
@@ -48,9 +68,13 @@ public class UserController {
         return userService.updateUser(user);
     }*/
 
+    /**
+     * 查找所有新闻
+     * @return
+     */
     @GetMapping("/read")
-    public List<User> findAll() {
-        return userService.list();
+    public Result findAll() {
+        return Result.success(userService.list());
     }
 
     //分页查询--基于limit关键字手写分页
@@ -83,6 +107,11 @@ public class UserController {
         return userIPage;
     }
 
+    /**
+     * 导出数据
+     * @param response
+     * @throws IOException
+     */
     @GetMapping("/export")
     public void export(HttpServletResponse response) throws IOException {
         List<User> list = userService.list();
@@ -100,6 +129,11 @@ public class UserController {
         writer.close();
     }
 
+    /**
+     * 导入数据
+     * @param file
+     * @throws IOException
+     */
     @PostMapping("/import")
     public void imp(MultipartFile file) throws IOException {
         InputStream inputStream = file.getInputStream();
