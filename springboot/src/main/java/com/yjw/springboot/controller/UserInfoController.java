@@ -6,6 +6,7 @@ import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yjw.springboot.common.Result;
 import com.yjw.springboot.entity.User;
 import com.yjw.springboot.entity.UserInfo;
 import com.yjw.springboot.service.Impl.UserInfoServiceImpl;
@@ -33,25 +34,55 @@ public class UserInfoController {
         return list;
     }
 
-    //保存或更新
+    /**
+     * 保存或更新
+     * @param userInfo
+     * @return
+     */
     @PostMapping
     public boolean save(@RequestBody UserInfo userInfo) {
         return userInfoService.saveOrUpdate(userInfo);
     }
 
-    //根据id删除
+    /**
+     * 根据ID删除
+     * @param id
+     * @return
+     */
     @DeleteMapping("/{id}")
     public boolean delete(@PathVariable Integer id) {
         return userInfoService.removeById(id);
     }
 
-    //批量删除
+    /**
+     * 批量删除
+     * @param ids
+     * @return
+     */
     @PostMapping("/delete/batch")
     public boolean deleteBatch(@RequestBody List<Integer> ids) {
         return userInfoService.removeByIds(ids);
     }
 
-    //分页查询--基于MyBatis-plus的方法
+    /**
+     * 个人信息
+     * @param username
+     * @return
+     */
+    /*@GetMapping("/username/{username}")
+    public Result findOne(@PathVariable String username){
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("username",username);
+        return Result.success(userService.getOne(queryWrapper));
+    }*/
+
+    /**
+     * 分页查询--基于MyBatis-plus的方法
+     * @param pageNum
+     * @param pageSize
+     * @param username
+     * @return
+     */
     @GetMapping("/page")
     public IPage<UserInfo> findPage(@RequestParam Integer pageNum,
                                 @RequestParam Integer pageSize,
@@ -65,7 +96,11 @@ public class UserInfoController {
         return userIPage;
     }
 
-    //导入导出
+    /**
+     * 数据导出
+     * @param response
+     * @throws IOException
+     */
     @GetMapping("/export")
     public void export(HttpServletResponse response) throws IOException {
         List<UserInfo> list = userInfoService.list();
@@ -83,6 +118,11 @@ public class UserInfoController {
         writer.close();
     }
 
+    /**
+     * 数据导入
+     * @param file
+     * @throws IOException
+     */
     @PostMapping("/import")
     public void imp(MultipartFile file) throws IOException {
         InputStream inputStream = file.getInputStream();

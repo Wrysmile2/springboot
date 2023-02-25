@@ -1,20 +1,18 @@
 package com.yjw.springboot.controller;
 
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.yjw.springboot.common.Constants;
 import com.yjw.springboot.common.Result;
 import com.yjw.springboot.dto.UserDto;
+import com.yjw.springboot.dto.UserInfoDto;
 import com.yjw.springboot.service.Impl.UserInfoServiceImpl;
 import com.yjw.springboot.service.Impl.UserServiceImpl;
-import com.yjw.springboot.utils.TokenUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
 
 @RestController
 public class LoginController {
@@ -43,14 +41,17 @@ public class LoginController {
 
 
     @PostMapping("/admin/login")
-    public Result AdminLogin(@RequestBody UserDto userDto){
-        String username = userDto.getUsername();
-        String password = userDto.getPassword();
+    public Result AdminLogin(@RequestBody UserInfoDto userInfoDto, HttpServletRequest request){
+        String username = userInfoDto.getUsername();
+        String password = userInfoDto.getPassword();
         if (StrUtil.isBlank(username) || StrUtil.isBlank(password)){
             return Result.error(Constants.CODE_400,"参数错误");
         }
-        UserDto adminDto = userInfoService.AdminLogin(userDto);
-        return Result.success(adminDto);
+        UserInfoDto userInfoDto1 = userInfoService.AdminLoginIF(userInfoDto);
+        Integer userInfoId = userInfoService.selectId(username);
+        userInfoDto1.setId(userInfoId);
+        request.getSession().setAttribute("userInfo",userInfoDto1);
+        return Result.success(userInfoDto1);
     }
 
 }

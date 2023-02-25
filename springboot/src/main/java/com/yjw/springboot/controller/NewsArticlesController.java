@@ -6,20 +6,24 @@ import cn.hutool.poi.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.yjw.springboot.common.Result;
 import com.yjw.springboot.entity.NewsArticles;
 import com.yjw.springboot.entity.User;
 import com.yjw.springboot.service.Impl.NewsArticlesServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/news")
 public class NewsArticlesController {
@@ -38,14 +42,26 @@ public class NewsArticlesController {
     }
 
     /**
+     * 增加新闻
+     * @return
+     * @param newsArticles
+     */
+    @PostMapping("/AddNew")
+    public Result save(@RequestBody NewsArticles newsArticles,HttpServletRequest request){
+        Integer userInfoId = (Integer) request.getSession().getAttribute("userInfo");
+//        log.info(newsArticles.getContent());
+        newsArticles.setUserInfoId(userInfoId);
+        return Result.success(newsArticlesService.save(newsArticles));
+    }
+
+    /**
      * 根据ID删除数据
      * @param id
      * @return
      */
     @DeleteMapping("/{id}")
-    public boolean deleteById(@PathVariable Integer id){
-        boolean result = newsArticlesService.removeById(id);
-        return result;
+    public Result deleteById(@PathVariable Integer id){
+        return Result.success(newsArticlesService.removeById(id));
     }
 
     /**
